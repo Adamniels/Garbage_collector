@@ -3,6 +3,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define PAGE_SIZE 2048
+#define MIN_OBJECT_SIZE 16
+#define ALIGNMENT 0x1000
 /**
  * A page represent a single memory page within the heap
  *

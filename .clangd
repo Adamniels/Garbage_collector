@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: ["-I/usr/local/Cellar/cunit/2.1-3/include", "-L/usr/local/Cellar/cunit/2.1-3/lib"]

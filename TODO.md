@@ -1,0 +1,3 @@
+# TODO:
+
+    - skriva om makefilen

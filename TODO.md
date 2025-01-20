@@ -1,4 +1,4 @@
 # TODO:
 
-    - hitta felet varför allt är förskjutet, är det det även i våran?
+    - testa h_init mer och skriva h_delete & h_delete_dbg
     - skriva om makefilen

@@ -15,7 +15,7 @@ page_t *p_init(void *page_start, size_t page_index) {
   page_t *page = (page_t *)page_start;
 
   // move page start to after the page struct
-  page->page_start = (uint64_t *)page_start + sizeof(page_t);
+  page->page_start = (uint8_t *)page_start + sizeof(page_t);
 
   // set all the metadata
   page->next_empty_space = page->page_start;
@@ -36,8 +36,11 @@ heap_t *h_init(size_t bytes, bool unsafe_stack, float gc_threshold) {
   }
   size_t bytes_to_allocate = bytes;
   size_t page_amount = bytes / PAGE_SIZE;
+  // space for all structs
   bytes_to_allocate += page_amount * sizeof(page_t) + sizeof(heap_t);
+  // space for allocation map???
   bytes_to_allocate += PAGE_SIZE * page_amount / MIN_OBJECT_SIZE;
+
   // TODO: om det här är arrayen så känns det som det borde vara * page_amount
   bytes_to_allocate += page_amount * sizeof(page_t *);
 

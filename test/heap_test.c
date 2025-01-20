@@ -16,9 +16,8 @@ void create_heap_test(void) {
 
   // Test to see if anything overlaps
   // TODO: actually write test for this
-  // TODO: något är fel, det är förskjutet med 320 bytes
   printf("address heap: %lu\n", (size_t)heap);
-  printf("address page start: %lu\n", (size_t)&heap->heap_start);
+  printf("address heap start: %lu\n", (size_t)&heap->heap_start);
   printf("address heap size: %lu\n", (size_t)&heap->heap_size);
   printf("address page array: %lu\n", (size_t)&heap->page_array);
   printf("address page amount: %lu\n", (size_t)&heap->page_amount);
@@ -31,6 +30,17 @@ void create_heap_test(void) {
   printf("second page start: %lu\n", (size_t)heap->page_array[1]->page_start);
   printf("size of page struct: %lu\n", sizeof(page_t));
   printf("addres of first in page array: %lu\n", (size_t)&heap->page_array[0]);
+
+  size_t heap_start = (size_t)heap->heap_start;
+  size_t address_end_of_alloc_map =
+      (size_t)&heap->alloc_map[heap->page_amount * 2 - 1] + sizeof(uint64_t);
+
+  // make sure allocation map don't overlap with first page, alloc end should be
+  // same as heap start
+  CU_ASSERT_EQUAL(heap_start, address_end_of_alloc_map);
+  // TODO: fortsätt testa detta
+
+  h_delete(heap);
 }
 
 // TODO: vad vill jag testa:

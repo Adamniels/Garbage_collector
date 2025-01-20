@@ -1,4 +1,4 @@
 # TODO:
 
-    - testa h_init mer och skriva h_delete & h_delete_dbg
+    - flippa bitsen i alloc_raw och se till att allt verkligen funkar dvs även att ta ut mer komplicerade objekt 4h
     - skriva om makefilen

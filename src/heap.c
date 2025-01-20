@@ -92,3 +92,22 @@ heap_t *h_init(size_t bytes, bool unsafe_stack, float gc_threshold) {
 
   return heap;
 }
+
+void h_delete(heap_t *heap) {
+  if (!heap) {
+    assert(!"invalid heap");
+  }
+  free(heap);
+}
+
+void h_delete_dbg(heap_t *heap, unsigned char dbg_value) {
+  if (!heap) {
+    assert(!"invalid heap");
+  }
+
+  if (heap->heap_start) {
+    memset(heap, dbg_value, heap->heap_size);
+  }
+
+  free(heap);
+}

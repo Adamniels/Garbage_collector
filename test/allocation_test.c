@@ -12,7 +12,7 @@ void ex_allocation_test(void) { CU_ASSERT_TRUE(true); }
 void print_bit_vector(uint64_t bit_vector) {
   printf("Bit vector: ");
   for (int i = 63; i >= 0; i--) { // Börja från MSB och gå ner till LSB
-    printf("%ld", (bit_vector >> i) & 1);
+    printf("%lu", (bit_vector >> i) & 1);
     // Skifta bitarna och maskera för att extrahera varje bit
   }
   printf("\n");
@@ -121,7 +121,6 @@ void test_allocating_object_moving_next_ptr(void) {
 
   // first page
   page_t *first = heap->page_array[0];
-  // TODO: dem är inte lika från början
   CU_ASSERT_EQUAL(first->page_start, first->next_empty_space);
 
   char *start = (char *)first->page_start;
@@ -155,6 +154,39 @@ void test_allocating_flipp_bits_in_map(void) {
 
   // print_bit_vector(expected_bit_vector);
   CU_ASSERT_EQUAL(expected_bit_vector, first_in_map_array);
+  h_delete(heap);
+}
+
+void test_flipping_bits_h_alloc_raw(void) {
+  heap_t *heap = h_init((size_t)2600, false, 0.8);
+
+  // allocate object ptr int int ptr size 24 + header = 32
+  h_alloc_raw(heap, 24);
+
+  // check if 2 first bits in alloc map has changed
+  uint64_t first_in_map_array = heap->alloc_map[0];
+  // print_bit_vector(first_in_map_array);
+  uint64_t expected_bit_vector = 0;
+  expected_bit_vector |= (1ULL << 63) | (1ULL << 62);
+
+  // print_bit_vector(expected_bit_vector);
+  CU_ASSERT_EQUAL(expected_bit_vector, first_in_map_array);
+  h_delete(heap);
+}
+
+void test_alloc_raw(void) {
+  heap_t *heap = h_init((size_t)2600, false, 0.8);
+
+  CU_ASSERT_EQUAL(heap->page_array[0]->remaining_size, 2048);
+  page_t *first = heap->page_array[0];
+  CU_ASSERT_EQUAL(first->page_start, first->next_empty_space);
+
+  // allocate object ptr int int ptr size 24 + header = 32
+  h_alloc_raw(heap, 24);
+
+  CU_ASSERT_EQUAL(heap->page_array[0]->remaining_size, 2016);
+  CU_ASSERT_EQUAL(first->page_start + 32, first->next_empty_space);
+
   h_delete(heap);
 }
 
@@ -212,6 +244,44 @@ void test_using_obj(void) {
   CU_ASSERT_EQUAL(test_struct->int_t, 10);
   h_delete(heap);
 }
+
+struct ptr_int_ptr {
+  void *ptr1;
+  int int1;
+  void *ptr2;
+};
+
+void test_covering_more_complex(void) {
+  heap_t *heap = h_init((size_t)10400, false, 0.5);
+
+  // allocate 3 objects each 32 bytes
+  struct ptr_int_ptr *obj1 = h_alloc_struct(heap, "*i*");
+  struct ptr_int_ptr *obj2 = h_alloc_struct(heap, "*i*");
+  struct ptr_int_ptr *obj3 = h_alloc_struct(heap, "*i*");
+  obj1->int1 = 1;
+  obj2->int1 = 2;
+  obj3->int1 = 3;
+  CU_ASSERT_EQUAL(heap->page_array[0]->remaining_size, 2048 - (3 * 32));
+
+  // link them obj1 -> obj2 and obj3
+  obj1->ptr1 = obj2;
+  obj1->ptr2 = obj3;
+  // link obj2 -> obj3
+  obj2->ptr1 = obj3;
+
+  CU_ASSERT_EQUAL(obj2, obj1->ptr1);
+  CU_ASSERT_EQUAL(obj1->int1, 1);
+
+  // set obj2 and obj3 to null
+  obj2 = NULL;
+  obj3 = NULL;
+
+  CU_ASSERT_EQUAL(((struct ptr_int_ptr *)(obj1->ptr1))->int1, 2);
+  CU_ASSERT_EQUAL(((struct ptr_int_ptr *)(obj1->ptr2))->int1, 3);
+
+  h_delete(heap);
+}
+
 int allocation_tests() {
   CU_pSuite pSuite = CU_add_suite("allocation_tests", NULL, NULL);
   if (NULL == pSuite) {
@@ -239,12 +309,23 @@ int allocation_tests() {
                            test_allocating_flipp_bits_in_map)) ||
       (NULL ==
        CU_add_test(pSuite,
+                   "test flipping bits in allocation map for raw allocation",
+                   test_flipping_bits_h_alloc_raw)) ||
+      (NULL == CU_add_test(pSuite, "test metadata correct after alloc raw",
+                           test_alloc_raw)) ||
+      (NULL ==
+       CU_add_test(pSuite,
                    "test allocating and see i remaining changed as it should",
                    test_allocating_remainingsize_changed)) ||
       (NULL == CU_add_test(pSuite, "test allocation 100 objects",
                            test_allocating_100_obj)) ||
       (NULL == CU_add_test(pSuite, "test using the object after allocation",
                            test_using_obj)) ||
+      (NULL ==
+       CU_add_test(pSuite,
+                   "test a more complex testing, more like a simple program",
+                   test_covering_more_complex)) ||
+
       false) {
 
     CU_cleanup_registry();

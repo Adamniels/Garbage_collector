@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
-#
+
 void set_bit_vector(layout_bitvector_t *lbv, int field_index) {
   if (field_index >= 0 && field_index < HEADER_SIZE * 8) {
     // the right side puts the 1 int the correct place and |= (or) so we set the
@@ -193,7 +193,17 @@ void *h_alloc_raw(heap_t *h, size_t bytes) {
   // flytta pekare efter header(pekare som vi returnerar)
   void *ptr_to_obj = (void *)((uint8_t *)head + HEADER_SIZE);
 
-  // TODO vippa bitarna i allokerings kartan
+  // flipp the bits in the allocation map
+  int bits_per_page = 2048 / 16; // = 128
+  int bits_to_obj_start_in_page =
+      ((char *)page->next_empty_space - (char *)page->page_start) / 16;
+  int start_index = (bits_per_page * page_index) + bits_to_obj_start_in_page;
+
+  set_bits_in_alloc_map(h->alloc_map, start_index, total_size);
+
+  // update next ptr
+  page->next_empty_space =
+      (void *)((char *)page->next_empty_space + total_size);
 
   // Update remaining_size
   page->remaining_size -= total_size;

@@ -1,4 +1,5 @@
 # TODO:
 
-    - flippa bitsen i alloc_raw och se till att allt verkligen funkar dvs även att ta ut mer komplicerade objekt 4h
+    - börja med compacting
+        - hämta linked list från inlupp2
     - skriva om makefilen

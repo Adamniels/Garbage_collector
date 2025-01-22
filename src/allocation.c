@@ -152,6 +152,15 @@ void *h_alloc_struct(heap_t *h, char *layout) {
   // create a new ptr, pointing after header(ptr to return)
   void *ptr_to_obj = (void *)((char *)page->next_empty_space + HEADER_SIZE);
 
+  // reset the memory, so everything i null
+  // TODO: detta är en bug, av någon anledning så gör detta att jag får segfault
+  int bytes_to_set_to_zero = (total_size / 16) * 2;
+  void *tmp = ptr_to_obj;
+  for (int i = 0; i < bytes_to_set_to_zero; i++) {
+    uint64_t *address_to_reset = (uint64_t *)tmp + i;
+    *address_to_reset = 0;
+  }
+
   // flipp the bits in the allocation map
   // hitta mellan vilka index jag ska sätta dem till 1, start och hur långt
   int bits_per_page = 2048 / 16; // = 128

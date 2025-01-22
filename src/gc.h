@@ -16,6 +16,6 @@ void *h_alloc_raw(heap_t *h, size_t bytes);
 size_t h_avail(heap_t *h);
 size_t h_used(heap_t *h);
 size_t h_gc(heap_t *h);
-size_t h_gc_dbg(heap_t *h, bool unsafe_stack, void *top);
+size_t h_gc_dbg(heap_t *h, bool unsafe_stack);
 
 #endif

@@ -24,6 +24,11 @@ compile_tests: compile $(TEST_OBJECTS)
 test: compile_tests
 	./unit_tests
 
+demo_linked_list: demos/linked_list_demo.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c
+	gcc -g demos/linked_list_demo.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c -o demo_linked_list
+	./demo_linked_list
+	rm -f demo_linked_list
+
 # Compile and run test suites with valgrind
 memtest: compile_tests
 	$(MEMTEST_TOOL) ./unit_tests $(MEMTEST_OPTIONS)

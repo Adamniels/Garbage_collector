@@ -1,5 +1,7 @@
 #include "allocation.h"
+#include "compacting.h"
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -124,7 +126,13 @@ void set_bits_in_alloc_map(uint64_t *alloc_map, int start_index, int bytes) {
 }
 
 void *h_alloc_struct(heap_t *h, char *layout) {
-  // TODO: do we need to do a gc?
+  size_t allocated_bytes = count_allocated_bytes_on_heap(h);
+  if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
+    size_t reclaimed = h_gc(h);
+    puts("=== GC report ===\n");
+    printf("\nGC collected: %ld bytes\n", reclaimed);
+    puts("\n=================");
+  }
 
   // calculate the size of object and the total size with header and padding
   size_t obj_size = object_size(layout);
@@ -152,7 +160,6 @@ void *h_alloc_struct(heap_t *h, char *layout) {
   // create a new ptr, pointing after header(ptr to return)
   void *ptr_to_obj = (void *)((char *)page->next_empty_space + HEADER_SIZE);
 
-  // TODO: detta är en bug, av någon anledning så gör detta att jag får segfault
   uint8_t *tmp = (uint8_t *)ptr_to_obj;
   int elements_to_set = obj_size;
   for (int i = 0; i < elements_to_set; i++) {
@@ -180,7 +187,13 @@ void *h_alloc_struct(heap_t *h, char *layout) {
 }
 
 void *h_alloc_raw(heap_t *h, size_t bytes) {
-  // TODO: calculate if we need to run the gc
+  size_t allocated_bytes = count_allocated_bytes_on_heap(h);
+  if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
+    size_t reclaimed = h_gc(h);
+    puts("=== GC report ===\n");
+    printf("\nGC collected: %ld bytes\n", reclaimed);
+    puts("\n=================");
+  }
 
   // räkna ut storlek inklusive header och ev. padding
   int bytes_to_add = (16 - ((bytes + HEADER_SIZE) % 16)) % 16;

@@ -317,6 +317,7 @@ void traverse_and_forward(heap_t *h, ioopm_list_t *root_list) {
 
     if (num_pointers == 0) {
       // means there was no actuall ptr to follow
+      free(ptrs_in_obj);
       continue;
     }
 

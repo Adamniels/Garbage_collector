@@ -1,8 +1,13 @@
 # TODO:
 
-    - börja med find roots sen gå tillbaka till compacting och se att allt funkar som det ska
-        - lägga in en gc i allocation if we are over threshhold
+## Prioriterade uppgifter
 
-    - write a demo program
-    - skriva om makefilen
-    - skriva om att jag har byggt vidare på ett icke färdigt skolprojekt
+- [ ] gå tillbaka till compacting och se att allt funkar
+  - [ ] fixa bug där jag hittar för många pekare
+    - [ ] skriva ett demo som gör samma sak som testet och se om det funkar där
+
+## Kommande uppgifter
+
+- [ ] write a demo program
+- [ ] skriva om makefilen
+- [ ] skriva om att jag har byggt vidare på ett icke färdigt skolprojekt

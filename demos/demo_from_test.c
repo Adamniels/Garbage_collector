@@ -15,18 +15,22 @@ struct ptr_ptr_int {
 int demo_from_test(void) {
   printf("Demo to see if it is just the tests that find to many roots\n");
   heap_t *heap = h_init(10400, false, 0.5);
+  printf("Created heap at: %p\n", heap);
 
   struct ptr_ptr_int *obj1 = h_alloc_struct(heap, "**i");
   struct ptr_ptr_int *obj2 = h_alloc_struct(heap, "**i");
   struct ptr_ptr_int *obj3 = h_alloc_struct(heap, "**i");
   obj1->ptr1 = obj3;
 
-  obj3 = NULL;
+  // obj3 = NULL;
   printf(" ");
+  // TODO: ful bug, vet inte hur jag ska göra? detta lär inte gå när jag inte gc
+  // manuellt
 
   size_t reclaimed = h_gc_dbg(heap, false);
   printf("Reclaimed memory: %lu\n", reclaimed);
 
+  h_delete(heap);
   return EXIT_SUCCESS;
 }
 

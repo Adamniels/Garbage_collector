@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct node {
@@ -226,6 +227,18 @@ void ioopm_linked_list_apply_to_all(ioopm_list_t *list,
     index.int_elem++;
     ptr = ptr->next;
   }
+}
+
+void print_linked_list(ioopm_list_t *list) {
+  node_t *current = list->first->next; // Börja efter sentineln
+  size_t index = 0;
+  printf("Printing linked list:\n");
+  while (current != NULL) {
+    printf("Index %zu: Pointer: %p\n", index, *(void **)current->value.ptr);
+    current = current->next;
+    index++;
+  }
+  printf("End of list. Total nodes: %zu\n", list->size);
 }
 
 int ioopm_ptr_cmp_func(elem_t a, elem_t b) {

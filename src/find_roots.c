@@ -22,11 +22,39 @@ bool is_allocated_on_heap(heap_t *heap, void *ptr) {
   if (!heap) {
     assert(!"invalid heap");
   }
-  if ((uint8_t *)ptr < (uint8_t *)heap->heap_start ||
+  if ((uint8_t *)ptr <= (uint8_t *)heap->heap_start ||
       (uint8_t *)ptr >= (uint8_t *)heap->heap_start + heap->heap_size) {
     return false;
   }
-  return true;
+  uint64_t *allocation_map = heap->alloc_map;
+  uint64_t heap_ptr_offset =
+      (uint8_t *)ptr - ((uint8_t *)heap->heap_start + sizeof(page_t));
+
+  // there is always a header so we should point 8 bytes in
+  if (heap_ptr_offset % 8 != 0) {
+    return false;
+  }
+  uint64_t pages_before_ptr = heap_ptr_offset / PAGE_SIZE;
+  uint64_t page_offset = sizeof(page_t) * pages_before_ptr;
+
+  uint64_t alloc_map_index = heap_ptr_offset / ((2048 + sizeof(page_t)));
+  heap_ptr_offset -= page_offset;
+  // heap_ptr_offset -= alloc_map_index;
+  uint64_t alloc_map_bit = (127 - heap_ptr_offset / 16) % 128;
+  alloc_map_index += alloc_map_bit < 64;
+  alloc_map_bit %= 64;
+  printf("\n-----------\n"
+         "Pointer: %p\n"
+         "With offset: %llu\n"
+         "Alloc map index: %llu\n"
+         "Alloc map bit: %llu\n"
+         "-------------\n",
+         ptr, heap_ptr_offset, alloc_map_index, alloc_map_bit);
+  if ((allocation_map[alloc_map_index] & (1ull << alloc_map_bit)) != 0) {
+    return true;
+  }
+
+  return false;
 }
 
 // NOTE: stack seems to grow downwards
@@ -35,6 +63,7 @@ ioopm_list_t *find_gc_roots(heap_t *heap) {
   void **stack_bottom = get_stack_bottom();
 
   ioopm_list_t *roots = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+  printf("Created list at: %p\n", roots);
   if (roots == NULL) {
     assert(!"Could not linked list to hold roots");
   }
@@ -45,6 +74,9 @@ ioopm_list_t *find_gc_roots(heap_t *heap) {
       ioopm_linked_list_append(roots, (elem_t){.ptr = current});
     }
   }
+  asm volatile("" ::: "memory");
+  printf("Roots before returning:\n");
+  print_linked_list(roots);
 
   return roots;
 }

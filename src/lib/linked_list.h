@@ -107,3 +107,5 @@ bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_predicate *prop,
 /// internal calls of fun
 void ioopm_linked_list_apply_to_all(ioopm_list_t *list,
                                     ioopm_apply_function *fun, void *extra);
+
+void print_linked_list(ioopm_list_t *list);

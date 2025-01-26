@@ -1,5 +1,6 @@
 #include "compacting.h"
 #include "allocation.h"
+#include "lib/linked_list.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -350,6 +351,7 @@ size_t h_gc_dbg(heap_t *h, bool unsafe_stack) {
   size_t initial_size_usage = count_allocated_bytes_on_heap(h);
 
   ioopm_list_t *root_list = find_gc_roots(h);
+  print_linked_list(root_list);
 
   // 1st traversal to find all objects (avoid loops by checking forwarding
   // address)

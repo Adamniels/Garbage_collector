@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define Dump_registers()                                                       \
   jmp_buf env;                                                                 \
@@ -58,11 +59,19 @@ bool is_allocated_on_heap(heap_t *heap, void *ptr) {
 }
 
 // NOTE: stack seems to grow downwards
-ioopm_list_t *find_gc_roots(heap_t *heap) {
+result *find_gc_roots(heap_t *heap) {
   void **stack_top = get_stack_top();
   void **stack_bottom = get_stack_bottom();
 
+  result *res = calloc(1, sizeof(result));
   ioopm_list_t *roots = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+  ioopm_list_t *expected_roots1 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+  ioopm_list_t *expected_roots2 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+
+  res->roots = roots;
+  res->expected_roots1 = expected_roots1;
+  res->expected_roots2 = expected_roots2;
+
   printf("Created list at: %p\n", roots);
   if (roots == NULL) {
     assert(!"Could not linked list to hold roots");
@@ -70,7 +79,11 @@ ioopm_list_t *find_gc_roots(heap_t *heap) {
 
   for (void **current = stack_top; current <= stack_bottom;
        current = current + 1) {
+
     if (is_allocated_on_heap(heap, *current)) {
+      ioopm_linked_list_append(expected_roots1, (elem_t){.ptr = *current});
+      ioopm_linked_list_append(expected_roots2, (elem_t){.ptr = *current});
+
       ioopm_linked_list_append(roots, (elem_t){.ptr = current});
     }
   }
@@ -78,5 +91,5 @@ ioopm_list_t *find_gc_roots(heap_t *heap) {
   printf("Roots before returning:\n");
   print_linked_list(roots);
 
-  return roots;
+  return res;
 }

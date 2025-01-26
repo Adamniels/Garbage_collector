@@ -57,8 +57,16 @@ void test_traverse_move_and_forward(void) {
   ioopm_linked_list_append(artificial_root_list, (elem_t){.ptr = &obj1});
   ioopm_linked_list_append(artificial_root_list, (elem_t){.ptr = &obj2});
 
+  ioopm_list_t *expected1 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+  ioopm_linked_list_append(expected1, (elem_t){.ptr = &obj1});
+  ioopm_linked_list_append(expected1, (elem_t){.ptr = &obj2});
+
+  ioopm_list_t *expected2 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
+  ioopm_linked_list_append(expected2, (elem_t){.ptr = &obj1});
+  ioopm_linked_list_append(expected2, (elem_t){.ptr = &obj2});
+
   // traverse and move, see so everything updates as it should
-  traverse_and_move(heap, artificial_root_list);
+  traverse_and_move(heap, artificial_root_list, expected1);
   // test allocation map
   first_in_map_array = heap->alloc_map[0];
   uint64_t third_in_map_array = heap->alloc_map[2];
@@ -83,7 +91,7 @@ void test_traverse_move_and_forward(void) {
   CU_ASSERT_EQUAL((uint64_t *)obj1->ptr1, (uint64_t *)page1->page_start + 9);
   // start+obj1+obj2+header
 
-  traverse_and_forward(heap, artificial_root_list);
+  traverse_and_forward(heap, artificial_root_list, expected2);
   //  obj ptr should be updated
   CU_ASSERT_NOT_EQUAL((uint64_t *)obj1, (uint64_t *)page1->page_start + 1);
   CU_ASSERT_NOT_EQUAL((uint64_t *)obj2, (uint64_t *)page1->page_start + 5);
@@ -96,6 +104,8 @@ void test_traverse_move_and_forward(void) {
   CU_ASSERT_EQUAL((uint64_t *)obj1->ptr1, (uint64_t *)page2->page_start + 9);
 
   ioopm_linked_list_destroy(artificial_root_list);
+  ioopm_linked_list_destroy(expected1);
+  ioopm_linked_list_destroy(expected2);
   h_delete(heap);
 }
 

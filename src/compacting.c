@@ -1,5 +1,6 @@
 #include "compacting.h"
 #include "allocation.h"
+#include "lib/common.h"
 #include "lib/linked_list.h"
 #include <assert.h>
 #include <stdio.h>
@@ -149,7 +150,8 @@ int eq_function_ptr(elem_t a, elem_t b) {
 // currently active objects
 //          we make no assumption as to where on the heap these pages are
 //          placed, but allocation must ensure they exist!
-void traverse_and_move(heap_t *h, ioopm_list_t *root_list) {
+void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
+                       ioopm_list_t *expected_list) {
   size_t num_passive_pages, num_active_pages;
   page_t **passive_page_array = find_passive_pages(h, &num_passive_pages);
   page_t **active_page_array = find_active_pages(h, &num_active_pages);
@@ -176,6 +178,15 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list) {
   while (ioopm_linked_list_remove(queue, 0, &temp_elem)) {
 
     current_pointer = (void **)temp_elem.ptr;
+
+    // if expected_list isnt empty compare them if not equal its been corrupted
+    if (!ioopm_linked_list_is_empty(expected_list)) {
+      elem_t res1;
+      ioopm_linked_list_remove(expected_list, 0, &res1);
+      if (res1.ptr != *current_pointer) {
+        continue;
+      }
+    }
 
     // check if this object is already visited once (i.e. header is forwarding
     // address), in which case we skip it entirely forwarding address ends in
@@ -267,7 +278,8 @@ uint64_t extract_adress(uint64_t header) { return header & ~0x3; }
 // NOTE: here i assum the root list has ptr to ptr that points to the object so
 // void**
 // // TODO: behöver jag ens ta in heapen???
-void traverse_and_forward(heap_t *h, ioopm_list_t *root_list) {
+void traverse_and_forward(heap_t *h, ioopm_list_t *root_list,
+                          ioopm_list_t *expected_list) {
 
   ioopm_list_t *queue = ioopm_linked_list_create(eq_function_ptr);
 
@@ -281,10 +293,20 @@ void traverse_and_forward(heap_t *h, ioopm_list_t *root_list) {
   ioopm_list_t *visited = ioopm_linked_list_create(eq_function_ptr);
 
   while (!ioopm_linked_list_is_empty(queue)) {
+
     elem_t result;
     ioopm_linked_list_remove(queue, 0, &result);
     void **obj_ptr = result.ptr;
     void *obj_adress = *obj_ptr;
+
+    // if expected_list isnt empty compare them if not equal its been corrupted
+    if (!ioopm_linked_list_is_empty(expected_list)) {
+      elem_t res1;
+      ioopm_linked_list_remove(expected_list, 0, &res1);
+      if (res1.ptr != obj_adress) {
+        continue;
+      }
+    }
 
     if (obj_ptr == NULL) {
       // TODO: borde inte kunna vara null så ändra till en assert
@@ -350,20 +372,27 @@ size_t h_gc_dbg(heap_t *h, bool unsafe_stack) {
   // iterate over pages to count size usage
   size_t initial_size_usage = count_allocated_bytes_on_heap(h);
 
-  ioopm_list_t *root_list = find_gc_roots(h);
+  result *root_res = find_gc_roots(h);
+  ioopm_list_t *root_list = root_res->roots;
+  ioopm_list_t *expected_list1 = root_res->expected_roots1;
+  ioopm_list_t *expected_list2 = root_res->expected_roots2;
+
   print_linked_list(root_list);
 
   // 1st traversal to find all objects (avoid loops by checking forwarding
   // address)
-  traverse_and_move(h, root_list);
+  traverse_and_move(h, root_list, expected_list1);
 
   // 2nd traversal to replace all occurences of old pre-compacting addresses
   // with new addresses
-  traverse_and_forward(h, root_list);
+  traverse_and_forward(h, root_list, expected_list2);
 
   size_t new_size_usage = count_allocated_bytes_on_heap(h);
 
   ioopm_linked_list_destroy(root_list);
+  ioopm_linked_list_destroy(expected_list1);
+  ioopm_linked_list_destroy(expected_list2);
+  free(root_res);
 
   return initial_size_usage - new_size_usage;
 }

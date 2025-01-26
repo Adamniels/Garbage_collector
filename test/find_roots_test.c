@@ -14,11 +14,11 @@ void ex_find_root_test(void) { CU_ASSERT_TRUE(true); }
 void test_find_single_root(void) {
   heap_t *heap = h_init(10400, false, 0.5);
   void *obj1 = h_alloc_struct(heap, "*");
-  ioopm_list_t *root_list = find_gc_roots(heap);
-  CU_ASSERT_EQUAL(ioopm_linked_list_size(root_list), 1);
+  result *res_find_roots = find_gc_roots(heap);
+  CU_ASSERT_EQUAL(ioopm_linked_list_size(res_find_roots->roots), 1);
 
   elem_t res;
-  ioopm_linked_list_get(root_list, 0, &res);
+  ioopm_linked_list_get(res_find_roots->roots, 0, &res);
   CU_ASSERT_PTR_EQUAL(*(void **)res.ptr, obj1);
 }
 

@@ -23,7 +23,7 @@ int demo_from_test(void) {
   obj1->ptr1 = obj3;
 
   // obj3 = NULL;
-  printf(" ");
+  // printf(" ");
   // TODO: ful bug, vet inte hur jag ska göra? detta lär inte gå när jag inte gc
   // manuellt
 

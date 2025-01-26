@@ -30,7 +30,7 @@ demo_linked_list: demos/linked_list_demo.c src/heap.c src/allocation.c src/lib/l
 	rm -f demo_linked_list
 
 demo_from_test: demos/demo_from_test.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c
-	gcc -O0 -g demos/demo_from_test.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c -o demo_from_test
+	gcc -fsanitize=address -O0 -g demos/demo_from_test.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c -o demo_from_test
 	#./demo_from_test
 
 # Compile and run test suites with valgrind

@@ -58,12 +58,12 @@ void test_traverse_move_and_forward(void) {
   ioopm_linked_list_append(artificial_root_list, (elem_t){.ptr = &obj2});
 
   ioopm_list_t *expected1 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
-  ioopm_linked_list_append(expected1, (elem_t){.ptr = &obj1});
-  ioopm_linked_list_append(expected1, (elem_t){.ptr = &obj2});
+  ioopm_linked_list_append(expected1, (elem_t){.ptr = obj1});
+  ioopm_linked_list_append(expected1, (elem_t){.ptr = obj2});
 
   ioopm_list_t *expected2 = ioopm_linked_list_create(ioopm_ptr_cmp_func);
-  ioopm_linked_list_append(expected2, (elem_t){.ptr = &obj1});
-  ioopm_linked_list_append(expected2, (elem_t){.ptr = &obj2});
+  ioopm_linked_list_append(expected2, (elem_t){.ptr = obj1});
+  ioopm_linked_list_append(expected2, (elem_t){.ptr = obj2});
 
   // traverse and move, see so everything updates as it should
   traverse_and_move(heap, artificial_root_list, expected1);
@@ -136,7 +136,6 @@ void test_GC_same_case_as_test_traverse_and_forward(void) {
   CU_ASSERT_EQUAL(page1->remaining_size, 2048 - (3 * 32));
 
   size_t reclaimed = h_gc_dbg(heap, false);
-  // BUG: hittar för många pekare ??
 
   // test allocation map
   first_in_map_array = heap->alloc_map[0];
@@ -163,6 +162,11 @@ void test_GC_same_case_as_test_traverse_and_forward(void) {
   CU_ASSERT_EQUAL((uint64_t *)obj1, (uint64_t *)page2->page_start + 1);
   CU_ASSERT_EQUAL((uint64_t *)obj2, (uint64_t *)page2->page_start + 5);
   CU_ASSERT_EQUAL((uint64_t *)obj1->ptr1, (uint64_t *)page2->page_start + 9);
+
+  // set obj 1 and 3 to null, they should then be collected
+  obj1 = NULL;
+  reclaimed = h_gc_dbg(heap, false);
+  CU_ASSERT_EQUAL(reclaimed, 64);
 
   h_delete(heap);
 }

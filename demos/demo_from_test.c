@@ -3,8 +3,10 @@
 // test i find to many roots and i want to see it that has with cunit or not
 #include "../src/gc.h"
 #include "../src/heap.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct ptr_ptr_int {
   void *ptr1;
@@ -22,13 +24,19 @@ int demo_from_test(void) {
   struct ptr_ptr_int *obj3 = h_alloc_struct(heap, "**i");
   obj1->ptr1 = obj3;
 
-  // obj3 = NULL;
-  // printf(" ");
-  // TODO: ful bug, vet inte hur jag ska göra? detta lär inte gå när jag inte gc
-  // manuellt
+  obj3 = NULL;
 
   size_t reclaimed = h_gc_dbg(heap, false);
   printf("Reclaimed memory: %lu\n", reclaimed);
+  assert(obj3 == NULL);
+
+  obj1 = NULL;
+
+  reclaimed = h_gc_dbg(heap, false);
+  // BUG: andra gången jag kör så kommer den inte att hitta obj2 varför?
+  printf("Reclaimed memory: %lu, each object is of size: %lu\n", reclaimed,
+         sizeof(struct ptr_ptr_int));
+  assert(obj1 == NULL);
 
   h_delete(heap);
   return EXIT_SUCCESS;

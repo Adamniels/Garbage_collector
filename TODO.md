@@ -17,3 +17,5 @@
 - [ ] write a demo program
 - [ ] skriva om makefilen
 - [ ] skriva om att jag har byggt vidare på ett icke färdigt skolprojekt
+
+måste gå in och kolla varför pekare i testet andra gången fortf har alloc map index 1, det borde ligga på andra sidan

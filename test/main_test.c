@@ -32,9 +32,9 @@ int main() {
   }
 
   // Kör endast find_root_tests med verbose-utmatning
-  printf("=== Running find_root_tests with full output ===\n");
-  CU_basic_set_mode(CU_BRM_NORMAL);
-  CU_run_suite(find_root_suite);
+  // printf("=== Running find_root_tests with full output ===\n");
+  // CU_basic_set_mode(CU_BRM_NORMAL);
+  // CU_run_suite(find_root_suite);
 
   CU_cleanup_registry();
   return CU_get_error();

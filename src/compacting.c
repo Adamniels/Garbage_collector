@@ -1,5 +1,6 @@
 #include "compacting.h"
 #include "allocation.h"
+#include "debug.h"
 #include "lib/common.h"
 #include "lib/linked_list.h"
 #include <assert.h>
@@ -230,8 +231,10 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
     // move object (including header)
     void *old_header_address = (void *)((uint64_t *)(*current_pointer) - 1);
     void *new_header_address = new_page->next_empty_space;
-    printf("next empty: %lu\n",
-           new_page->next_empty_space - h->page_array[0]->page_start);
+    DEBUG_PRINT("next empty: %lu, ",
+                new_page->next_empty_space - h->page_array[0]->page_start);
+    DEBUG_PRINT("on page: %lu\n", new_page->index);
+
     size_t byte_size_including_header = obj_size + 8;
     memcpy(new_header_address, old_header_address, byte_size_including_header);
 
@@ -265,8 +268,8 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
     active_page_array[i]->remaining_size = PAGE_SIZE;
     active_page_array[i]->next_empty_space = active_page_array[i]->page_start;
     size_t index_page = active_page_array[i]->index;
-    h->alloc_map[index_page] = 0;
-    h->alloc_map[index_page + 1] = 0;
+    h->alloc_map[index_page * 2] = 0;
+    h->alloc_map[index_page * 2 + 1] = 0;
   }
 
   // deallocate linked list and page arrays
@@ -379,7 +382,7 @@ size_t h_gc_dbg(heap_t *h, bool unsafe_stack) {
   ioopm_list_t *expected_list1 = root_res->expected_roots1;
   ioopm_list_t *expected_list2 = root_res->expected_roots2;
 
-  print_linked_list(root_list);
+  // print_linked_list(root_list);
 
   // 1st traversal to find all objects (avoid loops by checking forwarding
   // address)

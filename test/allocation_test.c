@@ -1,4 +1,5 @@
 #include "../src/allocation.h"
+#include "../src/debug.h"
 #include "../src/gc.h"
 #include "../src/heap.h"
 #include <CUnit/Basic.h>
@@ -10,12 +11,12 @@ void ex_allocation_test(void) { CU_ASSERT_TRUE(true); }
 
 // helper for understanding how the bit vector looks like
 void print_bit_vector(uint64_t bit_vector) {
-  printf("Bit vector: ");
+  DEBUG_PRINT("Bit vector: ");
   for (int i = 63; i >= 0; i--) { // Börja från MSB och gå ner till LSB
-    printf("%lu", (bit_vector >> i) & 1);
+    DEBUG_PRINT("%lu", (bit_vector >> i) & 1);
     // Skifta bitarna och maskera för att extrahera varje bit
   }
-  printf("\n");
+  DEBUG_PRINT("\n");
 }
 
 void test_set_bit_in_bit_vector(void) {

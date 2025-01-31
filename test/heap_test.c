@@ -1,3 +1,4 @@
+#include "../src/debug.h"
 #include "../src/gc.h"
 #include "../src/heap.h"
 
@@ -16,20 +17,23 @@ void create_heap_test(void) {
 
   // Test to see if anything overlaps
   // TODO: actually write test for this
-  printf("address heap: %lu\n", (size_t)heap);
-  printf("address heap start: %lu\n", (size_t)&heap->heap_start);
-  printf("address heap size: %lu\n", (size_t)&heap->heap_size);
-  printf("address page array: %lu\n", (size_t)&heap->page_array);
-  printf("address page amount: %lu\n", (size_t)&heap->page_amount);
-  printf("address safe: %lu\n", (size_t)&heap->safe);
-  printf("address gc threshold: %lu\n", (size_t)&heap->GC_threshold);
-  printf("address alloc map: %lu\n", (size_t)&heap->alloc_map);
-  printf("address alloc map last: %lu\n", (size_t)&heap->alloc_map[3]);
-  printf("address of heap start: %lu\n", (size_t)heap->heap_start);
-  printf("first page start: %lu\n", (size_t)heap->page_array[0]->page_start);
-  printf("second page start: %lu\n", (size_t)heap->page_array[1]->page_start);
-  printf("size of page struct: %lu\n", sizeof(page_t));
-  printf("addres of first in page array: %lu\n", (size_t)&heap->page_array[0]);
+  DEBUG_PRINT("address heap: %lu\n", (size_t)heap);
+  DEBUG_PRINT("address heap start: %lu\n", (size_t)&heap->heap_start);
+  DEBUG_PRINT("address heap size: %lu\n", (size_t)&heap->heap_size);
+  DEBUG_PRINT("address page array: %lu\n", (size_t)&heap->page_array);
+  DEBUG_PRINT("address page amount: %lu\n", (size_t)&heap->page_amount);
+  DEBUG_PRINT("address safe: %lu\n", (size_t)&heap->safe);
+  DEBUG_PRINT("address gc threshold: %lu\n", (size_t)&heap->GC_threshold);
+  DEBUG_PRINT("address alloc map: %lu\n", (size_t)&heap->alloc_map);
+  DEBUG_PRINT("address alloc map last: %lu\n", (size_t)&heap->alloc_map[3]);
+  DEBUG_PRINT("address of heap start: %lu\n", (size_t)heap->heap_start);
+  DEBUG_PRINT("first page start: %lu\n",
+              (size_t)heap->page_array[0]->page_start);
+  DEBUG_PRINT("second page start: %lu\n",
+              (size_t)heap->page_array[1]->page_start);
+  DEBUG_PRINT("size of page struct: %lu\n", sizeof(page_t));
+  DEBUG_PRINT("addres of first in page array: %lu\n",
+              (size_t)&heap->page_array[0]);
 
   size_t heap_start = (size_t)heap->heap_start;
   size_t address_end_of_alloc_map =

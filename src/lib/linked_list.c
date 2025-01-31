@@ -1,4 +1,5 @@
 #include "linked_list.h"
+#include "../debug.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -229,16 +230,18 @@ void ioopm_linked_list_apply_to_all(ioopm_list_t *list,
   }
 }
 
+// only for debug at the moment all I needed it for
 void print_linked_list(ioopm_list_t *list) {
-  node_t *current = list->first->next; // Börja efter sentineln
+  node_t *current = list->first->next; // Start after sentinal
   size_t index = 0;
-  printf("Printing linked list:\n");
+  DEBUG_PRINT("Printing linked list:\n");
   while (current != NULL) {
-    printf("Index %zu: Pointer: %p\n", index, *(void **)current->value.ptr);
+    DEBUG_PRINT("Index %zu: Pointer: %p\n", index,
+                *(void **)current->value.ptr);
     current = current->next;
     index++;
   }
-  printf("End of list. Total nodes: %zu\n", list->size);
+  DEBUG_PRINT("End of list. Total nodes: %zu\n", list->size);
 }
 
 int ioopm_ptr_cmp_func(elem_t a, elem_t b) {

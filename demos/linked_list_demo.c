@@ -1,6 +1,7 @@
 #include "../src/gc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 /*
@@ -47,16 +48,8 @@ node_t *create_node_demo(heap_t *h, int val) {
 // prepend a new node storing int val
 void prepend(heap_t *h, list_t *list, int val) {
   node_t *new_node = create_node_demo(h, val);
-  if (true || val == 615 || val == 618 || val == 612) {
-    // printf("list->head pre-prepend: %p\n", list->head);
-  }
   new_node->next = list->head;
   list->head = new_node;
-  if (true || val == 615 || val == 618 || val == 612) {
-    // printf("\nadded node (%p, %d) after head in list at %p)\n",
-    // new_node->next,
-    //      val, list);
-  }
 }
 
 // remove the first node containing the value val
@@ -88,7 +81,6 @@ bool contains(list_t *list, int val) {
   node_t *p = list->head;
   node_t *dbg_last_p;
   while (p != NULL && index < 1024) {
-    // printf("index inside contains: %lu", index);
     if (p->val == val) {
       return true;
     }
@@ -152,9 +144,11 @@ int demo(void) {
       prepend(h, list4, prime4 * i);
       if (i % 10 == 1) {
         reclaimed = h_gc(h);
-        puts("\n=== GC report ===\n");
+        puts("\n=== GC report running gc every 10 loop===\n");
+        printf("Should not collect anything yet becuase we\n");
+        printf("are still filling up the lists\n");
         printf("\nGC collected: %lu bytes\n", reclaimed);
-        puts("\n=================\n");
+        puts("\n=========================================\n");
       }
     }
 
@@ -168,9 +162,12 @@ int demo(void) {
     printf("Before GC: list1 at address %p\n", list1);
     /* run GC, moving all allocated nodes to new heap pages */
     reclaimed = h_gc(h);
-    puts("\n=== GC report ===\n");
+    puts("\n=== GC report after filling the list, still not removed anything "
+         "===\n");
+    printf("Should not collect anything still\n");
     printf("\nGC collected: %lu bytes\n", reclaimed);
-    puts("\n=================\n");
+    puts("\n==================================================================="
+         "==\n");
     printf("After GC: list1 at address %p\n", list1);
     /* validate the lists after GC to ensure that they still contain the same
      * numbers */
@@ -189,6 +186,8 @@ int demo(void) {
       found3 += contains(list3, prime3 * i) ? 1 : 0;
       found4 += contains(list4, prime4 * i) ? 1 : 0;
     }
+    puts("\n=== Validating we can still reach each element after multiple GCs "
+         "===\n");
     printf("Found %lu of %lu list entries in list %d\n", found1, list_length,
            1);
     printf("Found %lu of %lu list entries in list %d\n", found2, list_length,
@@ -197,23 +196,28 @@ int demo(void) {
            3);
     printf("Found %lu of %lu list entries in list %d\n", found4, list_length,
            4);
+    puts("\n==================================================================="
+         "==\n");
 
     /* clear stack pointers in heap, allowing future GC to cleanup */
     list1 = NULL;
     list2 = NULL;
-    list3 = NULL;
-    list4 = NULL;
 
-    size_t reclaimed = h_gc(h);
-    puts("=== GC report ===\n");
+    puts("=== GC report, now we have set list 1 and 2 to null ===\n");
+    printf("Currently using %lu bytes, with %lu bytes available\n", h_used(h),
+           h_avail(h));
+    reclaimed = h_gc(h);
+    printf("Therefore we should now reclaim half of all the memory");
     printf("\nGC collected: %ld bytes\n", reclaimed);
     puts("\n=================");
   }
   /* final GC */
-  reclaimed = h_gc(h);
-  puts("=== GC report ===\n");
-  printf("\nGC collected: %ld bytes\n", reclaimed);
-  puts("\n=================");
+  list3 = NULL;
+  list4 = NULL;
+  reclaimed += h_gc(h);
+  puts("=== Final GC report set everthing to null, the total of all GCs ===\n");
+  printf("\nGC Total collected: %ld bytes\n", reclaimed);
+  puts("\n===========================================");
 
   puts("=== validation report ===\n");
   printf("Allocated 4 lists of %ld bytes each %d times, for a total of %ld "

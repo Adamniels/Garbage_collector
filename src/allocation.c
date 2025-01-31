@@ -147,10 +147,10 @@ void *h_alloc_struct(heap_t *h, char *layout) {
 
   // if no available page exist
   if (page_index == -1) {
-    // TODO:
-    // kör GC
-    // försök igen
-    // funkar det fortfarande inte krasch!!!
+    // TODO: could try to run an a gc before
+    printf("object dont fit on any of the pages left, heap could be full or to "
+           "big object size");
+    assert(false);
   }
 
   // create a header

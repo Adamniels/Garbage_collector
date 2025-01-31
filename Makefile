@@ -26,12 +26,12 @@ test: compile_tests
 
 demo_linked_list: demos/linked_list_demo.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c
 	gcc -g demos/linked_list_demo.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c -o demo_linked_list
-	./demo_linked_list
-	rm -f demo_linked_list
+	#./demo_linked_list
+	#rm -f demo_linked_list
 
 demo_from_test: demos/demo_from_test.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c
 	gcc -fsanitize=address -O0 -g demos/demo_from_test.c src/heap.c src/allocation.c src/lib/linked_list.c src/compacting.c src/find_roots.c -o demo_from_test
-	#./demo_from_test
+	./demo_from_test
 
 # Compile and run test suites with valgrind
 memtest: compile_tests

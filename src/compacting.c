@@ -230,6 +230,8 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
     // move object (including header)
     void *old_header_address = (void *)((uint64_t *)(*current_pointer) - 1);
     void *new_header_address = new_page->next_empty_space;
+    printf("next empty: %lu\n",
+           new_page->next_empty_space - h->page_array[0]->page_start);
     size_t byte_size_including_header = obj_size + 8;
     memcpy(new_header_address, old_header_address, byte_size_including_header);
 

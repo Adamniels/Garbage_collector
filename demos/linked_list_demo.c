@@ -48,13 +48,14 @@ node_t *create_node_demo(heap_t *h, int val) {
 void prepend(heap_t *h, list_t *list, int val) {
   node_t *new_node = create_node_demo(h, val);
   if (true || val == 615 || val == 618 || val == 612) {
-    printf("list->head pre-prepend: %p\n", list->head);
+    // printf("list->head pre-prepend: %p\n", list->head);
   }
   new_node->next = list->head;
   list->head = new_node;
   if (true || val == 615 || val == 618 || val == 612) {
-    printf("\nadded node (%p, %d) after head in list at %p)\n", new_node->next,
-           val, list);
+    // printf("\nadded node (%p, %d) after head in list at %p)\n",
+    // new_node->next,
+    //      val, list);
   }
 }
 
@@ -86,7 +87,8 @@ bool contains(list_t *list, int val) {
   size_t index = 0;
   node_t *p = list->head;
   node_t *dbg_last_p;
-  while (p != NULL) {
+  while (p != NULL && index < 1024) {
+    // printf("index inside contains: %lu", index);
     if (p->val == val) {
       return true;
     }
@@ -112,7 +114,7 @@ void print_list(struct list *list) {
 int demo(void) {
 
   // 1 MiB heap
-  unsigned long heap_size = 1UL * 1024UL * 1024UL;
+  unsigned long heap_size = 2UL * 1024UL * 1024UL;
   heap_t *h = h_init(heap_size, false, 0.4);
   unsigned long list_length =
       1 * 1024; // list size = 96 KiB = 8*1024*sizeof(node_t) + sizeof(list_t)

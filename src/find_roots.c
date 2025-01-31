@@ -31,21 +31,31 @@ bool is_allocated_on_heap(heap_t *heap, void *ptr) {
   uint64_t heap_ptr_offset =
       (uint8_t *)ptr - ((uint8_t *)heap->heap_start + sizeof(page_t));
 
+  // för debuggin //
+  uint64_t second_page_start_address =
+      (uint64_t)heap->page_array[1]->page_start -
+      ((uint64_t)heap->heap_start + sizeof(page_t));
+  // printf("second_page_start_address: %llu\n", second_page_start_address);
+  //////////////////
+
   // there is always a header so we should point 8 bytes in
   if (heap_ptr_offset % 8 != 0) {
     return false;
   }
   uint64_t pages_before_ptr = heap_ptr_offset / PAGE_SIZE;
+  printf("\n--------------\n");
+  // printf("heap_ptr_offset before: %llu\n", heap_ptr_offset);
+  // printf("pages_before_ptr: %llu\n", pages_before_ptr);
   uint64_t page_offset = sizeof(page_t) * pages_before_ptr;
 
   uint64_t alloc_map_index = heap_ptr_offset / ((2048 + sizeof(page_t)));
+  alloc_map_index *= 2;
   heap_ptr_offset -= page_offset;
   // heap_ptr_offset -= alloc_map_index;
-  uint64_t alloc_map_bit = (127 - heap_ptr_offset / 16) % 128;
+  uint64_t alloc_map_bit = 127 - ((heap_ptr_offset / 16) % 128);
   alloc_map_index += alloc_map_bit < 64;
   alloc_map_bit %= 64;
-  printf("\n-----------\n"
-         "Pointer: %p\n"
+  printf("Pointer: %p\n"
          "With offset: %llu\n"
          "Alloc map index: %llu\n"
          "Alloc map bit: %llu\n"

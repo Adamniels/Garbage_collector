@@ -37,7 +37,7 @@ int length_layout(char *layout);
  * The bit is set only if the field index is within the valid
  * range (0 to HEADER_SIZE*4 - 1).
  *
- * Takes a pointer to the bit vector(TODO: for now a struct with a bitvector
+ * Takes a pointer to the bit vector (a struct with a bitvector
  * inside) and the field index which we should set to true
  */
 void set_bit_vector(layout_bitvector_t *lbv, int field_index);

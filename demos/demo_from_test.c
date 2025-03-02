@@ -33,7 +33,6 @@ int demo_from_test(void) {
   obj1 = NULL;
 
   reclaimed = h_gc_dbg(heap, false);
-  // BUG: andra gången jag kör så kommer den inte att hitta obj2 varför?
   printf("Reclaimed memory: %lu, each object is of size: %lu\n", reclaimed,
          sizeof(struct ptr_ptr_int));
   assert(obj1 == NULL);

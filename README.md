@@ -7,6 +7,7 @@ för att visa hur garbage collectorn kan användas.
 
 ## Projektstruktur
 
+```
 Garbage_collector/
 │── src/ # Källkod
 │ ├── allocation.c # Minnesallokering
@@ -19,6 +20,7 @@ Garbage_collector/
 │── Makefile # Byggskript
 │── README.md # Dokumentation
 │── TODO.md # Uppgiftslista
+```
 
 ## Komma igång
 

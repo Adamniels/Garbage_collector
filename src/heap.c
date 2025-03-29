@@ -35,17 +35,18 @@ heap_t *h_init(size_t bytes, bool unsafe_stack, float gc_threshold) {
     assert(!"Too small of a heap");
   }
   size_t bytes_to_allocate = bytes;
-  size_t page_amount = bytes / PAGE_SIZE;
+  size_t page_amount = bytes / PAGE_SIZE; // 2048 bytes
   // space for all structs
   bytes_to_allocate += page_amount * sizeof(page_t) + sizeof(heap_t);
-  // space for allocation map???
-  bytes_to_allocate += PAGE_SIZE * page_amount / MIN_OBJECT_SIZE;
+  // space for allocation map
+  bytes_to_allocate += PAGE_SIZE * page_amount / MIN_OBJECT_SIZE; // 16 bytes
 
-  // TODO: om det här är arrayen så känns det som det borde vara * page_amount
+  // array for the pages in heap struct
   bytes_to_allocate += page_amount * sizeof(page_t *);
 
   void *heap_mem = NULL;
 
+  // allocates memory and aligns it
   int result = posix_memalign(&heap_mem, ALIGNMENT, bytes_to_allocate);
   if (result != 0) {
     fprintf(stderr, "posix_memalign misslyckades med kod: %d\n", result);

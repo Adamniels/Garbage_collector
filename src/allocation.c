@@ -129,6 +129,7 @@ void *h_alloc_struct(heap_t *h, char *layout) {
   size_t allocated_bytes = count_allocated_bytes_on_heap(h);
   if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
     size_t reclaimed = h_gc(h);
+    // TODO: this should only print in debug mode
     puts("=== GC report ===\n");
     printf("\nGC collected: %ld bytes\n", reclaimed);
     puts("\n=================");
@@ -136,7 +137,9 @@ void *h_alloc_struct(heap_t *h, char *layout) {
 
   // calculate the size of object and the total size with header and padding
   size_t obj_size = object_size(layout);
-  // i need to move the ptr later so it still lines up with the allocation map,
+
+  // Align objects
+  // I need to move the ptr later so it still lines up with the allocation map,
   // so in parts off 16 bytes how much i need to add: (16 - (size of object +
   // header(8 bytes) % 16)) % 16
   int bytes_to_add = (16 - ((obj_size + HEADER_SIZE) % 16)) % 16;
@@ -150,7 +153,7 @@ void *h_alloc_struct(heap_t *h, char *layout) {
     // TODO: could try to run an a gc before
     printf("object dont fit on any of the pages left, heap could be full or to "
            "big object size");
-    assert(false);
+    assert(!"Object dont fit on any page");
   }
 
   // create a header
@@ -161,13 +164,15 @@ void *h_alloc_struct(heap_t *h, char *layout) {
   void *ptr_to_obj = (void *)((char *)page->next_empty_space + HEADER_SIZE);
 
   uint8_t *tmp = (uint8_t *)ptr_to_obj;
+
+  // reset all space in memory
   int elements_to_set = obj_size;
   for (int i = 0; i < elements_to_set; i++) {
     tmp[i] = 0;
   }
 
   // flipp the bits in the allocation map
-  // hitta mellan vilka index jag ska sätta dem till 1, start och hur långt
+  // find between which index in the alloc map we should set, start and how many
   int bits_per_page = 2048 / 16; // = 128
   int bits_to_obj_start_in_page =
       ((char *)page->next_empty_space - (char *)page->page_start) / 16;
@@ -190,16 +195,16 @@ void *h_alloc_raw(heap_t *h, size_t bytes) {
   size_t allocated_bytes = count_allocated_bytes_on_heap(h);
   if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
     size_t reclaimed = h_gc(h);
+    // TODO: only in debug mode
     puts("=== GC report ===\n");
     printf("\nGC collected: %ld bytes\n", reclaimed);
     puts("\n=================");
   }
 
-  // räkna ut storlek inklusive header och ev. padding
+  // calculate total size
   int bytes_to_add = (16 - ((bytes + HEADER_SIZE) % 16)) % 16;
   int total_size = bytes + HEADER_SIZE + bytes_to_add;
 
-  // hitta nästa lediga utrymme
   int page_index = find_next_available(h, total_size);
 
   // create a header
@@ -207,10 +212,10 @@ void *h_alloc_raw(heap_t *h, size_t bytes) {
   void *head = page->next_empty_space;
 
   // header contains size bit-shifted 3 bits to the left, followed by 3-bit
-  // metadata tag
-  *((uint64_t *)head) = ((uint64_t)bytes << 3) || 0x3;
+  // metadata tag move in 3 bit and set code for decoding which header
+  *((uint64_t *)head) = ((uint64_t)bytes << 3) | 0x3;
 
-  // flytta pekare efter header(pekare som vi returnerar)
+  // move ptr to after header (ptr to return)
   void *ptr_to_obj = (void *)((uint8_t *)head + HEADER_SIZE);
 
   // flipp the bits in the allocation map
@@ -228,6 +233,6 @@ void *h_alloc_raw(heap_t *h, size_t bytes) {
   // Update remaining_size
   page->remaining_size -= total_size;
 
-  // returnera pekare till början av objektet
+  // return ptr pointing to just after header
   return ptr_to_obj;
 }

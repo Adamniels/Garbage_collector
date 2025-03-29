@@ -1,5 +1,6 @@
 #include "allocation.h"
 #include "compacting.h"
+#include "debug.h"
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -129,10 +130,11 @@ void *h_alloc_struct(heap_t *h, char *layout) {
   size_t allocated_bytes = count_allocated_bytes_on_heap(h);
   if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
     size_t reclaimed = h_gc(h);
-    // TODO: this should only print in debug mode
-    puts("=== GC report ===\n");
-    printf("\nGC collected: %ld bytes\n", reclaimed);
-    puts("\n=================");
+    if (DEBUG_MODE) {
+      puts("=== GC report ===\n");
+      printf("\nGC collected: %ld bytes\n", reclaimed);
+      puts("\n=================");
+    }
   }
 
   // calculate the size of object and the total size with header and padding
@@ -195,10 +197,12 @@ void *h_alloc_raw(heap_t *h, size_t bytes) {
   size_t allocated_bytes = count_allocated_bytes_on_heap(h);
   if (((float)allocated_bytes / (float)h->heap_size) > h->GC_threshold) {
     size_t reclaimed = h_gc(h);
-    // TODO: only in debug mode
-    puts("=== GC report ===\n");
-    printf("\nGC collected: %ld bytes\n", reclaimed);
-    puts("\n=================");
+    // TODO: borde vara i debug mode
+    if (DEBUG_MODE) {
+      puts("=== GC report ===\n");
+      printf("\nGC collected: %ld bytes\n", reclaimed);
+      puts("\n=================");
+    }
   }
 
   // calculate total size

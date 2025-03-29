@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define DEBUG_MODE true
+
 // Definiera DEBUG här eller via kompilatorflagga
 // #define DEBUG // comment this line to deactivate debug mode
 

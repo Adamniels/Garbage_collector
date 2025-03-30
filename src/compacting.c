@@ -61,8 +61,8 @@ void ***interpret_header(void *p, size_t *num_pointers, size_t *object_size) {
   uint8_t b1b0 = 0x3 & header;      // extract first and second bit code
   uint8_t b2 = (0x4 & header) >> 2; // extract third bit code
 
-  if (b1b0 != 0x3) { // not a bitvector, TODO: handle this case too
-    return NULL;
+  if (b1b0 != 0x3) { // not a bitvector
+    assert(!"not a bit vector (interpret_header)");
   }
 
   if (b2 == 0) {
@@ -137,7 +137,6 @@ bool header_is_forwarding_address(void *p) {
 
 // equal function, works becuase i actually add the forwarding adress not the
 // double ptr
-// TODO: finns denna redan i linked list längst ner?
 int eq_function_ptr(elem_t a, elem_t b) {
   return (a.ptr > b.ptr) - (a.ptr < b.ptr);
 }
@@ -181,6 +180,8 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
     current_pointer = (void **)temp_elem.ptr;
 
     // if expected_list isnt empty compare them if not equal its been corrupted
+    // NOTE: there are equal in numbers of pointers, however those who have
+    // changed are wrongfully put inte the array in find roots
     if (!ioopm_linked_list_is_empty(expected_list)) {
       elem_t res1;
       ioopm_linked_list_remove(expected_list, 0, &res1);
@@ -225,7 +226,7 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
     }
 
     if (new_page == NULL) {
-      exit(1); // TODO: handle this error case
+      assert(!"No page with enough size (traverse_and_move)");
     }
 
     // move object (including header)
@@ -280,7 +281,7 @@ void traverse_and_move(heap_t *h, ioopm_list_t *root_list,
 
 uint64_t extract_adress(uint64_t header) { return header & ~0x3; }
 
-// NOTE: here i assum the root list has ptr to ptr that points to the object so
+// NOTE: here I assume the root list has ptr to ptr that points to the object so
 // void**
 // // TODO: behöver jag ens ta in heapen???
 void traverse_and_forward(heap_t *h, ioopm_list_t *root_list,
@@ -314,8 +315,7 @@ void traverse_and_forward(heap_t *h, ioopm_list_t *root_list,
     }
 
     if (obj_ptr == NULL) {
-      // TODO: borde inte kunna vara null så ändra till en assert
-      assert(obj_ptr != NULL);
+      assert(!"obj_ptr is null (traverse_and_forward)");
       continue;
     }
     // extract the forwarding adress from the header

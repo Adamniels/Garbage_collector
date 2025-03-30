@@ -3,7 +3,7 @@
 Detta projekt började som ett skolprojekt inom minneshantering och garbage collection i C.
 Ursprungligen var projektet inte färdigt och saknade fungerande tester och exempeldemos som funkade.
 Jag har därefter byggt vidare, fixat dem värsta buggarn, fixat testfallen och lagt till enkla demonstrationsprogram
-för att visa hur garbage collectorn kan användas.
+för att visa hur garbage collectorn kan användas. ...SKRIV MER
 
 ## Projektstruktur
 
